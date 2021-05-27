@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Ex1t">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Ex1t">
+    
+    <meta name="keywords" content="hexo,ctf,writeup,dawn,hack,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>GDB在CTF解题中的一些使用技巧 · Ex1t&#39;s space</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/favicon.png">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Ex1t&#39;s space</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">GDB在CTF解题中的一些使用技巧</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Ex1t's space</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            GDB在CTF解题中的一些使用技巧
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "CTF">CTF</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "PWN">PWN</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">990</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2018/11/26</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p>当我拿到一道PWN题时，应该如何用GDB处理这个二进制程序。<br>我搭建了一个最轻量版的64位Ubuntu16的虚拟机(无图形界面)用来调试PWN的二进制程序<br>安装了GDB以及GDB的Peda插件，并且安装了32位的兼容  </p>
+<h1 id="找到main函数"><a href="#找到main函数" class="headerlink" title="找到main函数"></a>找到main函数</h1><p>CTF的PWN题一般是经过了strip的，没有符号表，也不知道函数名<br>(但是不知道为什么IDA Pro就能识别出main函数，很奇怪，这个坑留到后面补)<br>所以想要调试题目，最先要做的事情就是找到程序的入口函数: main  </p>
+<p>最快的方式是直接使用 <code>r</code>(run)指令，跑一下这个程序，程序会在输入点循环等待输入<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ubuntu@ubuntuM<span class="keyword">in</span>:~$ gdb sendflag</span><br><span class="line">gdb-peda$ r</span><br><span class="line">Starting program: /home/ubuntu/sendflag</span><br><span class="line">WELCOME TO PWN</span><br><span class="line">I WILL SEND YOU FLAG</span><br><span class="line">BUT YOU SHOULD SEND ME SOME <span class="string">'a'</span></span><br></pre></td></tr></table></figure></p>
+<p> 这个时候按下<code>Ctrl+C</code>手动中断这个程序，程序会中断在输入函数里面<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ r</span><br><span class="line">Starting program: /home/ubuntu/sendflag</span><br><span class="line">WELCOME TO PWN</span><br><span class="line">I WILL SEND YOU FLAG</span><br><span class="line">BUT YOU SHOULD SEND ME SOME <span class="string">'a'</span></span><br><span class="line">^C</span><br><span class="line">Program received signal SIGINT, Interrupt.</span><br><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">EAX: <span class="number">0xfffffe00</span></span><br><span class="line">EBX: <span class="number">0x0</span></span><br><span class="line">ECX: 0x804b410 --&gt; 0x0</span><br><span class="line">EDX: <span class="number">0x400</span></span><br><span class="line">ESI: 0xf7fc85a0 --&gt; 0xfbad2288</span><br><span class="line">EDI: 0xf7fc8d60 --&gt; 0xfbad2a84</span><br><span class="line">EBP: 0xffffcf68 --&gt; 0xffffd5b8 --&gt; 0xffffd5f8 --&gt; 0xffffd628 --&gt; 0x0</span><br><span class="line">ESP: 0xffffcf18 --&gt; 0xffffcf68 --&gt; 0xffffd5b8 --&gt; 0xffffd5f8 --&gt; 0xffffd628 --&gt; 0x0</span><br><span class="line">EIP: <span class="number">0xf7fd9be9</span> (&lt;__kernel_vsyscall+<span class="number">9</span>&gt;: pop    ebp)</span><br><span class="line">EFLAGS: <span class="number">0x206</span> (carry PARITY adjust zero sign trap INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">   <span class="number">0xf7fd9be3</span> &lt;__kernel_vsyscall+<span class="number">3</span>&gt;:    mov    ebp,esp</span><br><span class="line">   <span class="number">0xf7fd9be5</span> &lt;__kernel_vsyscall+<span class="number">5</span>&gt;:    sysenter</span><br><span class="line">   <span class="number">0xf7fd9be7</span> &lt;__kernel_vsyscall+<span class="number">7</span>&gt;:    int    <span class="number">0x80</span></span><br><span class="line">=&gt; 0xf7fd9be9 &lt;__kernel_vsyscall+9&gt;:    pop    ebp</span><br><span class="line">   <span class="number">0xf7fd9bea</span> &lt;__kernel_vsyscall+<span class="number">10</span>&gt;:   pop    edx</span><br><span class="line">   <span class="number">0xf7fd9beb</span> &lt;__kernel_vsyscall+<span class="number">11</span>&gt;:   pop    ecx</span><br><span class="line">   <span class="number">0xf7fd9bec</span> &lt;__kernel_vsyscall+<span class="number">12</span>&gt;:   ret</span><br><span class="line">   <span class="number">0xf7fd9bed</span>:  adc    bh,bl</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xffffcf18 --&gt; 0xffffcf68 --&gt; 0xffffd5b8 --&gt; 0xffffd5f8 --&gt; 0xffffd628 --&gt; 0x0</span><br><span class="line">0004| 0xffffcf1c --&gt; 0x400</span><br><span class="line">0008| 0xffffcf20 --&gt; 0x804b410 --&gt; 0x0</span><br><span class="line">0012| 0xffffcf24 --&gt; 0xf7eec373 (&lt;read+35&gt;:     pop    ebx)</span><br><span class="line">0016| 0xffffcf28 --&gt; 0xf7fc8000 --&gt; 0x1afdb0</span><br><span class="line">0020| 0xffffcf2c --&gt; 0xf7e81627 (&lt;_IO_file_underflow+295&gt;:      add    esp,0x10)</span><br><span class="line">0024| 0xffffcf30 --&gt; 0x0</span><br><span class="line">0028| 0xffffcf34 --&gt; 0x804b410 --&gt; 0x0</span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line">Stopped reason: SIGINT</span><br><span class="line"><span class="number">0xf7fd9be9</span> <span class="keyword">in</span> __kernel_vsyscall ()</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure></p>
+<p>程序中断之后，使用 <code>bt</code> (backtrack) 来回溯函数调用，打印每一级的返回地址，<br>从而可以确定call调用指令的地址(一般返回地址是call指令地址+1的位置)<br>我们可以找到一个叫做__libc_start_main ()的lib函数，这个函数的第一个参数就是main函数的地址，是用来调用main函数的。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __cdecl __libc_start_main(<span class="keyword">int</span> (__cdecl *main)(<span class="keyword">int</span>, <span class="keyword">char</span> **, <span class="keyword">char</span> **), <span class="keyword">int</span> argc, <span class="keyword">char</span> **ubp_av, <span class="keyword">void</span> (*init)(<span class="keyword">void</span>), <span class="keyword">void</span> (*fini)(<span class="keyword">void</span>), <span class="keyword">void</span> (*rtld_fini)(<span class="keyword">void</span>), <span class="keyword">void</span> *stack_end);</span><br></pre></td></tr></table></figure></p>
+<p>可以看到__libc_start_main ()的返回地址在第九级： <code>0x080483b1</code>，因为没有符号表所以显示<code>in ?? ()</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ bt</span><br><span class="line">#0  0xf7fd9be9 in __kernel_vsyscall ()</span><br><span class="line">#1  0xf7eec373 in read () from /lib32/libc.so.6</span><br><span class="line">#2  0xf7e81627 in _IO_file_underflow () from /lib32/libc.so.6</span><br><span class="line">#3  0xf7e825e7 in _IO_default_uflow () from /lib32/libc.so.6</span><br><span class="line">#4  0xf7e823dc in __uflow () from /lib32/libc.so.6</span><br><span class="line">#5  0xf7e67429 in _IO_vfscanf () from /lib32/libc.so.6</span><br><span class="line">#6  0xf7e7362e in __isoc99_scanf () from /lib32/libc.so.6</span><br><span class="line">#7  0x080484dd in ?? ()</span><br><span class="line">#8  0xf7e30637 in __libc_start_main () from /lib32/libc.so.6</span><br><span class="line">#9  0x080483b1 in ?? ()</span><br></pre></td></tr></table></figure></p>
+<p>我们去看一下这个地址<code>0x080483b1</code>之前的汇编代码，GDB中<code>disas</code>(disasemble)命令用来将二进制反汇编出汇编代码<br>这里我们用<code>disas start,+length</code>的格式反汇编一段地址空间的数据<br>可以看到在call之前push了一个地址，根据32位linux的传参规则，最后一个push的是第一个参数，那么<br><code>0x804848b</code>就可以确定是main的地址了</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ disas <span class="number">0x080483b1</span><span class="number">-20</span>,+<span class="number">20</span></span><br><span class="line">Dump of assembler code <span class="keyword">from</span> <span class="number">0x804839d</span> to <span class="number">0x80483b1</span>:</span><br><span class="line">   <span class="number">0x0804839d</span>:  test   DWORD PTR [eax+ecx*<span class="number">1</span>],eax</span><br><span class="line">   <span class="number">0x080483a0</span>:  push   <span class="number">0x8048540</span></span><br><span class="line">   <span class="number">0x080483a5</span>:  push   ecx</span><br><span class="line">   <span class="number">0x080483a6</span>:  push   esi</span><br><span class="line">   <span class="number">0x080483a7</span>:  push   <span class="number">0x804848b</span></span><br><span class="line">   <span class="number">0x080483ac</span>:  call   <span class="number">0x8048360</span> &lt;__libc_start_main@plt&gt;</span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+<p>现在去看一下main,发现了几个PUT函数和scanf函数，找到了程序的核心代码，这个题目是个非常简单的溢出题<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">disas <span class="number">0x804848b</span>,+<span class="number">100</span></span><br><span class="line">Dump of assembler code <span class="keyword">from</span> <span class="number">0x804848b</span> to <span class="number">0x80484ef</span>:</span><br><span class="line">   <span class="number">0x0804848b</span>:  lea    ecx,[esp+<span class="number">0x4</span>]</span><br><span class="line">   <span class="number">0x0804848f</span>:  <span class="keyword">and</span>    esp,<span class="number">0xfffffff0</span></span><br><span class="line">   <span class="number">0x08048492</span>:  push   DWORD PTR [ecx<span class="number">-0x4</span>]</span><br><span class="line">   <span class="number">0x08048495</span>:  push   ebp</span><br><span class="line">   <span class="number">0x08048496</span>:  mov    ebp,esp</span><br><span class="line">   <span class="number">0x08048498</span>:  push   ecx</span><br><span class="line">   <span class="number">0x08048499</span>:  sub    esp,<span class="number">0x14</span></span><br><span class="line">   <span class="number">0x0804849c</span>:  sub    esp,<span class="number">0xc</span></span><br><span class="line">   <span class="number">0x0804849f</span>:  push   <span class="number">0x80485c0</span></span><br><span class="line">   <span class="number">0x080484a4</span>:  call   <span class="number">0x8048340</span> &lt;puts@plt&gt;</span><br><span class="line">   <span class="number">0x080484a9</span>:  add    esp,<span class="number">0x10</span></span><br><span class="line">   <span class="number">0x080484ac</span>:  sub    esp,<span class="number">0xc</span></span><br><span class="line">   <span class="number">0x080484af</span>:  push   <span class="number">0x80485cf</span></span><br><span class="line">   <span class="number">0x080484b4</span>:  call   <span class="number">0x8048340</span> &lt;puts@plt&gt;</span><br><span class="line">   <span class="number">0x080484b9</span>:  add    esp,<span class="number">0x10</span></span><br><span class="line">   <span class="number">0x080484bc</span>:  sub    esp,<span class="number">0xc</span></span><br><span class="line">   <span class="number">0x080484bf</span>:  push   <span class="number">0x80485e4</span></span><br><span class="line">   <span class="number">0x080484c4</span>:  call   <span class="number">0x8048340</span> &lt;puts@plt&gt;</span><br><span class="line">   <span class="number">0x080484c9</span>:  add    esp,<span class="number">0x10</span></span><br><span class="line">   <span class="number">0x080484cc</span>:  sub    esp,<span class="number">0x8</span></span><br><span class="line">   <span class="number">0x080484cf</span>:  lea    eax,[ebp<span class="number">-0x10</span>]</span><br><span class="line">   <span class="number">0x080484d2</span>:  push   eax</span><br><span class="line">   <span class="number">0x080484d3</span>:  push   <span class="number">0x8048604</span></span><br><span class="line">   <span class="number">0x080484d8</span>:  call   <span class="number">0x8048370</span> &lt;__isoc99_scanf@plt&gt;</span><br><span class="line">   <span class="number">0x080484dd</span>:  add    esp,<span class="number">0x10</span></span><br><span class="line">   <span class="number">0x080484e0</span>:  cmp    DWORD PTR [ebp<span class="number">-0xc</span>],<span class="number">0x61616161</span></span><br><span class="line">   <span class="number">0x080484e7</span>:  jne    <span class="number">0x804850b</span></span><br><span class="line">   <span class="number">0x080484e9</span>:  sub    esp,<span class="number">0xc</span></span><br><span class="line">   <span class="number">0x080484ec</span>:  push   <span class="number">0x8048608</span></span><br></pre></td></tr></table></figure></p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://ex1t.space">Ex1t</a>
+            <p>原文链接：<a href="http://ex1t.space/2018/11/26/GDB在CTF解题中的一些使用技巧/">http://ex1t.space/2018/11/26/GDB在CTF解题中的一些使用技巧/</a>
+            <p>发表日期：<a href="http://ex1t.space/2018/11/26/GDB在CTF解题中的一些使用技巧/">November 26th 2018, 3:02:44 pm</a>
+            <p>更新日期：<a href="http://ex1t.space/2018/11/26/GDB在CTF解题中的一些使用技巧/">November 28th 2018, 10:34:44 pm</a>
+            <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/11/29/Linux的杂七杂八/" title= "Linux的杂七杂八">
+                    <div class="nextTitle">Linux的杂七杂八</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/11/25/折腾Docker记下来的东西/" title= "折腾Docker记下来的东西">
+                    <div class="prevTitle">折腾Docker记下来的东西</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:chanshon@outlook.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/S-Ex1t" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#找到main函数"><span class="toc-number">1.</span> <span class="toc-text">找到main函数</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 12
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2020/06/25/虚拟机相关/" >虚拟机相关</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/29</span><a class="archive-post-title" href= "/2018/11/29/Linux的杂七杂八/" >Linux的杂七杂八</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/26</span><a class="archive-post-title" href= "/2018/11/26/GDB在CTF解题中的一些使用技巧/" >GDB在CTF解题中的一些使用技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href= "/2018/11/25/折腾Docker记下来的东西/" >折腾Docker记下来的东西</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span><a class="archive-post-title" href= "/2018/04/30/DDCTF2018-WriteUp/" >DDCTF2018_WriteUp</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href= "/2017/12/01/windows-x64函数调用约定/" >windows x64函数调用约定</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/27</span><a class="archive-post-title" href= "/2017/11/27/虚拟主机的两种工作方式/" >虚拟主机的两种工作方式</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span><a class="archive-post-title" href= "/2017/09/22/Requests库POST文件名为中文时出现Bug（修复方法）/" >Requests库POST文件名为中文时出现Bug（修复方法）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/11</span><a class="archive-post-title" href= "/2017/04/11/NC-reverse-shell/" >NC reverse shell</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/03</span><a class="archive-post-title" href= "/2017/04/03/使用numpy解方程组/" >使用numpy解方程组</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/02</span><a class="archive-post-title" href= "/2017/04/02/各种关于Hexo的问题/" >各种关于Hexo的问题</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/21</span><a class="archive-post-title" href= "/2017/02/21/Github-域名绑定/" >Github-域名绑定</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="域名"><span class="iconfont-archer">&#xe606;</span>域名</span>
+    
+        <span class="sidebar-tag-name" data-tags="Github"><span class="iconfont-archer">&#xe606;</span>Github</span>
+    
+        <span class="sidebar-tag-name" data-tags="WriteUp"><span class="iconfont-archer">&#xe606;</span>WriteUp</span>
+    
+        <span class="sidebar-tag-name" data-tags="CTF"><span class="iconfont-archer">&#xe606;</span>CTF</span>
+    
+        <span class="sidebar-tag-name" data-tags="PWN"><span class="iconfont-archer">&#xe606;</span>PWN</span>
+    
+        <span class="sidebar-tag-name" data-tags="Linux"><span class="iconfont-archer">&#xe606;</span>Linux</span>
+    
+        <span class="sidebar-tag-name" data-tags="Pentest"><span class="iconfont-archer">&#xe606;</span>Pentest</span>
+    
+        <span class="sidebar-tag-name" data-tags="Python"><span class="iconfont-archer">&#xe606;</span>Python</span>
+    
+        <span class="sidebar-tag-name" data-tags="Hexo"><span class="iconfont-archer">&#xe606;</span>Hexo</span>
+    
+        <span class="sidebar-tag-name" data-tags="机器学习"><span class="iconfont-archer">&#xe606;</span>机器学习</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Pentest"><span class="iconfont-archer">&#xe60a;</span>Pentest</span>
+    
+        <span class="sidebar-category-name" data-categories="编程学习"><span class="iconfont-archer">&#xe60a;</span>编程学习</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "Ex1t"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

