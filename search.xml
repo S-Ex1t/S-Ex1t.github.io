@@ -245,14 +245,14 @@
   
     
     <entry>
-      <title><![CDATA[about]]></title>
-      <url>https://ex1t.cn/about/index.html</url>
+      <title><![CDATA[categories]]></title>
+      <url>https://ex1t.cn/categories/index.html</url>
       <content type="html"></content>
     </entry>
     
     <entry>
-      <title><![CDATA[categories]]></title>
-      <url>https://ex1t.cn/categories/index.html</url>
+      <title><![CDATA[about]]></title>
+      <url>https://ex1t.cn/about/index.html</url>
       <content type="html"></content>
     </entry>
     
