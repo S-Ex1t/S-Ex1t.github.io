@@ -245,6 +245,12 @@
   
     
     <entry>
+      <title><![CDATA[about]]></title>
+      <url>https://ex1t.cn/about/index.html</url>
+      <content type="html"></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[categories]]></title>
       <url>https://ex1t.cn/categories/index.html</url>
       <content type="html"></content>
@@ -253,12 +259,6 @@
     <entry>
       <title><![CDATA[tags]]></title>
       <url>https://ex1t.cn/tags/index.html</url>
-      <content type="html"></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[about]]></title>
-      <url>https://ex1t.cn/about/index.html</url>
       <content type="html"></content>
     </entry>
     
