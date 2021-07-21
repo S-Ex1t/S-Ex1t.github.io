@@ -16348,7 +16348,7 @@ var _config = _interopRequireDefault(require("./config"));
 var _howler = require("howler");
 
 var errorSound = new _howler.Howl({
-  src: ["../sound/error.wav"]
+  src: ["./sound/error.wav"]
 });
 var clickSounds = null;
 
@@ -16357,110 +16357,110 @@ function init() {
   clickSounds = {
     1: [{
       sounds: [new _howler.Howl({
-        src: "../sound/click1/click1_1.wav"
+        src: "./sound/click1/click1_1.wav"
       }), new _howler.Howl({
-        src: "../sound/click1/click1_1.wav"
+        src: "./sound/click1/click1_1.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click1/click1_2.wav"
+        src: "./sound/click1/click1_2.wav"
       }), new _howler.Howl({
-        src: "../sound/click1/click1_2.wav"
+        src: "./sound/click1/click1_2.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click1/click1_3.wav"
+        src: "./sound/click1/click1_3.wav"
       }), new _howler.Howl({
-        src: "../sound/click1/click1_3.wav"
+        src: "./sound/click1/click1_3.wav"
       })],
       counter: 0
     }],
     2: [{
       sounds: [new _howler.Howl({
-        src: "../sound/click2/click2_1.wav"
+        src: "./sound/click2/click2_1.wav"
       }), new _howler.Howl({
-        src: "../sound/click2/click2_1.wav"
+        src: "./sound/click2/click2_1.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click2/click2_2.wav"
+        src: "./sound/click2/click2_2.wav"
       }), new _howler.Howl({
-        src: "../sound/click2/click2_2.wav"
+        src: "./sound/click2/click2_2.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click2/click2_3.wav"
+        src: "./sound/click2/click2_3.wav"
       }), new _howler.Howl({
-        src: "../sound/click2/click2_3.wav"
+        src: "./sound/click2/click2_3.wav"
       })],
       counter: 0
     }],
     3: [{
       sounds: [new _howler.Howl({
-        src: "../sound/click3/click3_1.wav"
+        src: "./sound/click3/click3_1.wav"
       }), new _howler.Howl({
-        src: "../sound/click3/click3_1.wav"
+        src: "./sound/click3/click3_1.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click3/click3_2.wav"
+        src: "./sound/click3/click3_2.wav"
       }), new _howler.Howl({
-        src: "../sound/click3/click3_2.wav"
+        src: "./sound/click3/click3_2.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click3/click3_3.wav"
+        src: "./sound/click3/click3_3.wav"
       }), new _howler.Howl({
-        src: "../sound/click3/click3_3.wav"
+        src: "./sound/click3/click3_3.wav"
       })],
       counter: 0
     }],
     4: [{
       sounds: [new _howler.Howl({
-        src: "../sound/click4/click4_1.wav"
+        src: "./sound/click4/click4_1.wav"
       }), new _howler.Howl({
-        src: "../sound/click4/click4_11.wav"
+        src: "./sound/click4/click4_11.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click4/click4_2.wav"
+        src: "./sound/click4/click4_2.wav"
       }), new _howler.Howl({
-        src: "../sound/click4/click4_22.wav"
+        src: "./sound/click4/click4_22.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click4/click4_3.wav"
+        src: "./sound/click4/click4_3.wav"
       }), new _howler.Howl({
-        src: "../sound/click4/click4_33.wav"
+        src: "./sound/click4/click4_33.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click4/click4_4.wav"
+        src: "./sound/click4/click4_4.wav"
       }), new _howler.Howl({
-        src: "../sound/click4/click4_44.wav"
+        src: "./sound/click4/click4_44.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click4/click4_5.wav"
+        src: "./sound/click4/click4_5.wav"
       }), new _howler.Howl({
-        src: "../sound/click4/click4_55.wav"
+        src: "./sound/click4/click4_55.wav"
       })],
       counter: 0
     }, {
       sounds: [new _howler.Howl({
-        src: "../sound/click4/click4_6.wav"
+        src: "./sound/click4/click4_6.wav"
       }), new _howler.Howl({
-        src: "../sound/click4/click4_66.wav"
+        src: "./sound/click4/click4_66.wav"
       })],
       counter: 0
     }]
@@ -38904,7 +38904,7 @@ Chart.pluginService.register(annotationPlugin);
 },{"./annotation.js":94,"./element.js":95,"./types/box.js":99,"./types/line.js":100,"chart.js":93}],99:[function(require,module,exports){
 // Box Annotation implementation
 module.exports = function(Chart) {
-	var helpers = require('../helpers.js')(Chart);
+	var helpers = require('./helpers.js')(Chart);
 	
 	var BoxAnnotation = Chart.Annotation.Element.extend({
 		setDataLimits: function() {
@@ -39049,11 +39049,11 @@ module.exports = function(Chart) {
 	return BoxAnnotation;
 };
 
-},{"../helpers.js":97}],100:[function(require,module,exports){
+},{"./helpers.js":97}],100:[function(require,module,exports){
 // Line Annotation implementation
 module.exports = function(Chart) {
 	var chartHelpers = Chart.helpers;
-	var helpers = require('../helpers.js')(Chart);
+	var helpers = require('./helpers.js')(Chart);
 
 	var horizontalKeyword = 'horizontal';
 	var verticalKeyword = 'vertical';
@@ -39318,7 +39318,7 @@ module.exports = function(Chart) {
 	return LineAnnotation;
 };
 
-},{"../helpers.js":97}],101:[function(require,module,exports){
+},{"./helpers.js":97}],101:[function(require,module,exports){
 /*!
  * chartjs-plugin-trendline.js
  * Version: 0.2.2
